@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ user.name }} - Symfoban{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6 flex justify-between items-center">
+        <h2 class="text-3xl font-bold text-gray-900">{{ user.name }}</h2>
+        <a href="{{ path('app_user_index') }}" class="text-gray-600 hover:text-gray-800 font-medium">
+            ← Back to Users
+        </a>
+    </div>
+
+    <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+        <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Email</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ user.email }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Name</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ user.name }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Roles</dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                    {% for role in user.roles %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 mr-1">
+                            {{ role }}
+                        </span>
+                    {% endfor %}
+                </dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Created At</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ user.createdAt|date('Y-m-d H:i:s') }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Total Tasks</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ user.tasks|length }}</dd>
+            </div>
+        </dl>
+    </div>
+
+    {% if user.tasks|length > 0 %}
+        <div class="bg-white shadow-md rounded-lg p-6">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">Tasks Created</h3>
+            <div class="space-y-2">
+                {% for task in user.tasks %}
+                    <div class="border border-gray-200 rounded p-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-medium text-gray-900">{{ task.title }}</h4>
+                                {% if task.description %}
+                                    <p class="text-sm text-gray-600 mt-1">{{ task.description }}</p>
+                                {% endif %}
+                                <p class="text-xs text-gray-500 mt-2">
+                                    Column: {{ task.column.name }} | Board: {{ task.column.board.name }}
+                                </p>
+                            </div>
+                            <a href="{{ path('app_board_show', {'id': task.column.board.id}) }}" class="text-xs text-indigo-600 hover:text-indigo-800">
+                                View →
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
