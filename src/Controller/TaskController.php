@@ -6,6 +6,7 @@ use App\Entity\Task;
 use App\Form\TaskType;
 use App\Repository\TaskRepository;
 use App\Repository\ColumnRepository;
+use App\Service\ActivityLogService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,7 +24,8 @@ class TaskController extends AbstractController
         TaskRepository $taskRepository,
         ColumnRepository $columnRepository,
         EntityManagerInterface $entityManager,
-        CsrfTokenManagerInterface $csrfTokenManager
+        CsrfTokenManagerInterface $csrfTokenManager,
+        ActivityLogService $activityLogService
     ): JsonResponse {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
@@ -108,6 +110,21 @@ class TaskController extends AbstractController
 
             $entityManager->flush();
 
+            // Log activity
+            $oldColumnName = $oldColumn ? $oldColumn->getName() : 'Unknown';
+            $newColumnName = $newColumn->getName();
+            $description = $oldColumn === $newColumn
+                ? "Moved task '{$task->getTitle()}' to position {$newPosition} in column '{$newColumnName}'"
+                : "Moved task '{$task->getTitle()}' from '{$oldColumnName}' to '{$newColumnName}' at position {$newPosition}";
+            
+            $activityLogService->log(
+                'task_moved',
+                'Task',
+                $task->getId(),
+                $description,
+                $this->getUser()
+            );
+
             return new JsonResponse(['success' => true]);
         } catch (\Exception $e) {
             return new JsonResponse([
@@ -118,8 +135,11 @@ class TaskController extends AbstractController
     }
 
     #[Route('/new', name: 'app_task_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ActivityLogService $activityLogService
+    ): Response {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
         $task = new Task();
@@ -132,6 +152,15 @@ class TaskController extends AbstractController
             $entityManager->persist($task);
             $entityManager->flush();
 
+            // Log activity
+            $activityLogService->log(
+                'task_created',
+                'Task',
+                $task->getId(),
+                "Created task '{$task->getTitle()}' in column '{$task->getColumn()->getName()}'",
+                $this->getUser()
+            );
+
             return $this->redirectToRoute('app_board_show', ['id' => $task->getColumn()->getBoard()->getId()], Response::HTTP_SEE_OTHER);
         }
 
@@ -142,13 +171,26 @@ class TaskController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_task_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Task $task, EntityManagerInterface $entityManager): Response
-    {
+    public function edit(
+        Request $request,
+        Task $task,
+        EntityManagerInterface $entityManager,
+        ActivityLogService $activityLogService
+    ): Response {
         $form = $this->createForm(TaskType::class, $task);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
+
+            // Log activity
+            $activityLogService->log(
+                'task_updated',
+                'Task',
+                $task->getId(),
+                "Updated task '{$task->getTitle()}'",
+                $this->getUser()
+            );
 
             return $this->redirectToRoute('app_board_show', ['id' => $task->getColumn()->getBoard()->getId()], Response::HTTP_SEE_OTHER);
         }
@@ -160,11 +202,25 @@ class TaskController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_task_delete', methods: ['POST'])]
-    public function delete(Request $request, Task $task, EntityManagerInterface $entityManager): Response
-    {
+    public function delete(
+        Request $request,
+        Task $task,
+        EntityManagerInterface $entityManager,
+        ActivityLogService $activityLogService
+    ): Response {
         $boardId = $task->getColumn()->getBoard()->getId();
+        $taskTitle = $task->getTitle();
         
         if ($this->isCsrfTokenValid('delete'.$task->getId(), $request->getPayload()->get('_token'))) {
+            // Log activity before deletion
+            $activityLogService->log(
+                'task_deleted',
+                'Task',
+                $task->getId(),
+                "Deleted task '{$taskTitle}'",
+                $this->getUser()
+            );
+
             $entityManager->remove($task);
             $entityManager->flush();
         }

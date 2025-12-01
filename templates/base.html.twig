@@ -68,6 +68,11 @@
                         Search
                     </a>
                     {% if app.user %}
+                        <a href="{{ path('app_activity_log_index') }}" class="text-gray-700 hover:text-indigo-600 dark:text-gray-200 dark:hover:text-indigo-300 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                            Activity
+                        </a>
+                    {% endif %}
+                    {% if app.user %}
                         {% if is_granted('ROLE_ADMIN') %}
                             <a href="{{ path('app_user_index') }}" class="text-gray-700 hover:text-indigo-600 dark:text-gray-200 dark:hover:text-indigo-300 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                                 Users
