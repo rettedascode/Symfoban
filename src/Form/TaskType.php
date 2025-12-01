@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Column;
+use App\Entity\Tag;
 use App\Entity\Task;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -71,6 +72,17 @@ class TaskType extends AbstractType
                 'label' => 'Assign To',
                 'required' => false,
                 'placeholder' => 'Unassigned',
+                'attr' => [
+                    'class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
+                ],
+            ])
+            ->add('tags', EntityType::class, [
+                'class' => Tag::class,
+                'choice_label' => 'name',
+                'multiple' => true,
+                'required' => false,
+                'expanded' => false,
+                'label' => 'Tags',
                 'attr' => [
                     'class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
                 ],

@@ -79,6 +79,16 @@
                                     Edit
                                 </a>
                             </div>
+                            {% if task.tags|length > 0 %}
+                                <div class="flex flex-wrap gap-1 mb-2">
+                                    {% for tag in task.tags %}
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+                                              style="background-color: {{ tag.color ?? '#6B7280' }}20; color: {{ tag.color ?? '#6B7280' }}; border: 1px solid {{ tag.color ?? '#6B7280' }}40;">
+                                            {{ tag.name }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                             <div class="text-xs text-gray-500 dark:text-gray-400 pt-2 mt-2 border-t border-gray-200 dark:border-gray-600 space-y-1">
                                 {% if task.createdBy %}
                                     <div>Created by: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ task.createdBy.name }}</span></div>

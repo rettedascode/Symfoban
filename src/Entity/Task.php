@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\TaskRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
@@ -53,6 +55,10 @@ class Task
 
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $updatedAt;
+
+    #[ORM\ManyToMany(targetEntity: \App\Entity\Tag::class, inversedBy: 'tasks')]
+    #[ORM\JoinTable(name: 'task_tag')]
+    private Collection $tags;
 
     // Lifecycle callbacks to automatically manage timestamps
 
@@ -213,6 +219,30 @@ class Task
         $today = new \DateTime('today');
         $threeDays = new \DateTime('+3 days');
         return $this->dueDate >= $today && $this->dueDate <= $threeDays;
+    }
+
+    /**
+     * @return Collection<int, \App\Entity\Tag>
+     */
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(\App\Entity\Tag $tag): self
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(\App\Entity\Tag $tag): self
+    {
+        $this->tags->removeElement($tag);
+
+        return $this;
     }
 }
 
