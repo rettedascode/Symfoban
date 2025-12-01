@@ -85,17 +85,29 @@ class BoardController extends AbstractController
         return $this->redirectToRoute('app_board_show', ['id' => $board->getId()], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{id}', name: 'app_board_show', methods: ['GET'])]
-    public function show(Board $board): Response
+    #[Route('/{id}', name: 'app_board_show', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function show(int $id, BoardRepository $boardRepository): Response
     {
+        $board = $boardRepository->find($id);
+        
+        if (!$board) {
+            throw $this->createNotFoundException('Board not found.');
+        }
+        
         return $this->render('board/show.html.twig', [
             'board' => $board,
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_board_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Board $board, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/edit', name: 'app_board_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
+    public function edit(Request $request, int $id, BoardRepository $boardRepository, EntityManagerInterface $entityManager): Response
     {
+        $board = $boardRepository->find($id);
+        
+        if (!$board) {
+            throw $this->createNotFoundException('Board not found.');
+        }
+        
         $form = $this->createForm(BoardType::class, $board);
         $form->handleRequest($request);
 
@@ -111,9 +123,15 @@ class BoardController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_board_delete', methods: ['POST'])]
-    public function delete(Request $request, Board $board, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}', name: 'app_board_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function delete(Request $request, int $id, BoardRepository $boardRepository, EntityManagerInterface $entityManager): Response
     {
+        $board = $boardRepository->find($id);
+        
+        if (!$board) {
+            throw $this->createNotFoundException('Board not found.');
+        }
+        
         if ($this->isCsrfTokenValid('delete'.$board->getId(), $request->getPayload()->get('_token'))) {
             $entityManager->remove($board);
             $entityManager->flush();
