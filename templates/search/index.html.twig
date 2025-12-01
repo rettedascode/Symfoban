@@ -1,0 +1,93 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Search - Symfoban{% endblock %}
+
+{% block body %}
+<div class="max-w-6xl mx-auto">
+    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">Search</h2>
+
+    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl px-8 pt-8 pb-8 mb-6 border border-gray-200 dark:border-gray-700">
+        <form method="GET" action="{{ path('app_search') }}" class="flex gap-4">
+            <input
+                type="text"
+                name="q"
+                value="{{ query }}"
+                placeholder="Search tasks and boards..."
+                class="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-colors"
+            />
+            <button
+                type="submit"
+                class="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors shadow-md hover:shadow-lg"
+            >
+                Search
+            </button>
+        </form>
+    </div>
+
+    {% if query %}
+        <div class="space-y-6">
+            {% if tasks|length > 0 %}
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                        Tasks ({{ tasks|length }})
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {% for task in tasks %}
+                            <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
+                                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">
+                                    <a href="{{ path('app_board_show', {'id': task.column.board.id}) }}" class="hover:text-indigo-600 dark:hover:text-indigo-400">
+                                        {{ task.title }}
+                                    </a>
+                                </h4>
+                                {% if task.description %}
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{{ task.description }}</p>
+                                {% endif %}
+                                <div class="text-xs text-gray-500 dark:text-gray-500 space-y-1">
+                                    <div>Board: <span class="font-semibold">{{ task.column.board.name }}</span></div>
+                                    <div>Column: <span class="font-semibold">{{ task.column.name }}</span></div>
+                                    {% if task.assignedTo %}
+                                        <div>Assigned to: <span class="font-semibold">{{ task.assignedTo.name }}</span></div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if boards|length > 0 %}
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                        Boards ({{ boards|length }})
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {% for board in boards %}
+                            <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
+                                <h4 class="font-semibold text-gray-900 dark:text-white mb-2">
+                                    <a href="{{ path('app_board_show', {'id': board.id}) }}" class="hover:text-indigo-600 dark:hover:text-indigo-400">
+                                        {{ board.name }}
+                                    </a>
+                                </h4>
+                                <div class="text-xs text-gray-500 dark:text-gray-500">
+                                    Created: {{ board.createdAt|date('Y-m-d') }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if tasks|length == 0 and boards|length == 0 %}
+                <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl px-8 pt-8 pb-8 border border-gray-200 dark:border-gray-700 text-center">
+                    <p class="text-gray-600 dark:text-gray-400">No results found for "{{ query }}"</p>
+                </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl px-8 pt-8 pb-8 border border-gray-200 dark:border-gray-700 text-center">
+            <p class="text-gray-600 dark:text-gray-400">Enter a search query to find tasks and boards</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
