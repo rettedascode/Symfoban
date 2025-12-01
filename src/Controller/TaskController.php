@@ -5,13 +5,16 @@ namespace App\Controller;
 use App\Entity\Task;
 use App\Form\TaskType;
 use App\Repository\TaskRepository;
+use App\Repository\ColumnRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/task')]
+#[Route('/tasks')]
 class TaskController extends AbstractController
 {
     #[Route('/new', name: 'app_task_new', methods: ['GET', 'POST'])]
@@ -63,6 +66,89 @@ class TaskController extends AbstractController
         }
 
         return $this->redirectToRoute('app_board_show', ['id' => $boardId], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/reorder', name: 'app_task_reorder', methods: ['POST'])]
+    public function reorder(
+        Request $request,
+        TaskRepository $taskRepository,
+        ColumnRepository $columnRepository,
+        EntityManagerInterface $entityManager,
+        CsrfTokenManagerInterface $csrfTokenManager
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+        $csrfToken = $data['_token'] ?? null;
+        if (!$this->isCsrfTokenValid('tasks_reorder', $csrfToken)) {
+            return new JsonResponse(['success' => false, 'error' => 'Invalid CSRF token'], Response::HTTP_FORBIDDEN);
+        }
+
+        $taskId = $data['taskId'] ?? null;
+        $columnId = $data['columnId'] ?? null;
+        $newPosition = $data['position'] ?? null;
+
+        if ($taskId === null || $columnId === null || $newPosition === null) {
+            return new JsonResponse(['success' => false, 'error' => 'Missing parameters'], Response::HTTP_BAD_REQUEST);
+        }
+
+        /** @var Task|null $task */
+        $task = $taskRepository->find($taskId);
+        $newColumn = $columnRepository->find($columnId);
+
+        if (!$task || !$newColumn) {
+            return new JsonResponse(['success' => false, 'error' => 'Task or column not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $oldColumn = $task->getColumn();
+        $newPosition = max(0, (int) $newPosition);
+
+        // Reorder tasks in old and new columns
+        if ($oldColumn === $newColumn) {
+            // Move within the same column
+            $tasks = $oldColumn->getTasks()->toArray();
+            usort($tasks, static fn (Task $a, Task $b) => $a->getPosition() <=> $b->getPosition());
+
+            // Remove the task from the list
+            $tasks = array_values(array_filter($tasks, static fn (Task $t) => $t->getId() !== $task->getId()));
+
+            // Clamp position to list bounds
+            $newPosition = min($newPosition, count($tasks));
+
+            array_splice($tasks, $newPosition, 0, [$task]);
+
+            foreach ($tasks as $index => $t) {
+                $t->setPosition($index);
+            }
+        } else {
+            // Moving to a different column
+            if ($oldColumn) {
+                $oldTasks = $oldColumn->getTasks()->toArray();
+                usort($oldTasks, static fn (Task $a, Task $b) => $a->getPosition() <=> $b->getPosition());
+
+                $oldTasks = array_values(array_filter($oldTasks, static fn (Task $t) => $t->getId() !== $task->getId()));
+
+                foreach ($oldTasks as $index => $t) {
+                    $t->setPosition($index);
+                }
+            }
+
+            $task->setColumn($newColumn);
+
+            $newTasks = $newColumn->getTasks()->toArray();
+            usort($newTasks, static fn (Task $a, Task $b) => $a->getPosition() <=> $b->getPosition());
+
+            $newPosition = min($newPosition, count($newTasks));
+
+            array_splice($newTasks, $newPosition, 0, [$task]);
+
+            foreach ($newTasks as $index => $t) {
+                $t->setPosition($index);
+            }
+        }
+
+        $entityManager->flush();
+
+        return new JsonResponse(['success' => true]);
     }
 }
 
