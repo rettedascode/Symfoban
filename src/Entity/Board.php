@@ -33,8 +33,8 @@ class Board
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: 'datetime')]
-    private \DateTimeInterface $updatedAt;
+    #[ORM\Column(type: 'datetime_immutable')]
+    private \DateTimeImmutable $updatedAt;
 
     public function __construct()
     {
@@ -54,7 +54,7 @@ class Board
     #[ORM\PreUpdate]
     public function onPreUpdate(): void
     {
-        $this->updatedAt = new \DateTime();
+        $this->updatedAt = new \DateTimeImmutable();
     }
 
     // Getters / Setters
@@ -117,12 +117,12 @@ class Board
         return $this;
     }
 
-    public function getUpdatedAt(): \DateTimeInterface
+    public function getUpdatedAt(): \DateTimeImmutable
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
 

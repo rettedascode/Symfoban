@@ -34,8 +34,8 @@ class Task
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: 'datetime')]
-    private \DateTimeInterface $updatedAt;
+    #[ORM\Column(type: 'datetime_immutable')]
+    private \DateTimeImmutable $updatedAt;
 
     // Lifecycle callbacks to automatically manage timestamps
 
@@ -50,7 +50,7 @@ class Task
     #[ORM\PreUpdate]
     public function onPreUpdate(): void
     {
-        $this->updatedAt = new \DateTime();
+        $this->updatedAt = new \DateTimeImmutable();
     }
 
     // Getters / Setters
@@ -120,12 +120,12 @@ class Task
         return $this;
     }
 
-    public function getUpdatedAt(): \DateTimeInterface
+    public function getUpdatedAt(): \DateTimeImmutable
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
 
