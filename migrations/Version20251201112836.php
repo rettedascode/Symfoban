@@ -20,7 +20,15 @@ final class Version20251201112836 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE TABLE board_template (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name VARCHAR(255) NOT NULL, description CLOB DEFAULT NULL, columns CLOB NOT NULL, created_at DATETIME NOT NULL)');
+        // Check if board_template table exists before creating it
+        $tableExists = $this->connection->executeQuery(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='board_template'"
+        )->fetchOne();
+        
+        if (!$tableExists) {
+            $this->addSql('CREATE TABLE board_template (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name VARCHAR(255) NOT NULL, description CLOB DEFAULT NULL, columns CLOB NOT NULL, created_at DATETIME NOT NULL)');
+        }
+        
         $this->addSql('CREATE TEMPORARY TABLE __temp__task AS SELECT id, title, description, position, created_at, updated_at, column_id, created_by_id FROM task');
         $this->addSql('DROP TABLE task');
         $this->addSql('CREATE TABLE task (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, title VARCHAR(255) NOT NULL, description CLOB DEFAULT NULL, position INTEGER NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, column_id INTEGER NOT NULL, created_by_id INTEGER NOT NULL, priority VARCHAR(20) DEFAULT NULL, due_date DATE DEFAULT NULL, assigned_to_id INTEGER DEFAULT NULL, CONSTRAINT FK_527EDB25BE8E8ED5 FOREIGN KEY (column_id) REFERENCES kanban_column (id) ON UPDATE NO ACTION ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE, CONSTRAINT FK_527EDB25B03A8386 FOREIGN KEY (created_by_id) REFERENCES user (id) ON UPDATE NO ACTION ON DELETE NO ACTION NOT DEFERRABLE INITIALLY IMMEDIATE, CONSTRAINT FK_527EDB25F4BD7827 FOREIGN KEY (assigned_to_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE)');
