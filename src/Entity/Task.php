@@ -31,6 +31,10 @@ class Task
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $priority = null;
 
+    // Due date for the task
+    #[ORM\Column(type: 'date', nullable: true)]
+    private ?\DateTimeInterface $dueDate = null;
+
     #[ORM\ManyToOne(targetEntity: Column::class, inversedBy: 'tasks')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Column $column = null;
@@ -162,6 +166,36 @@ class Task
         $this->priority = $priority;
 
         return $this;
+    }
+
+    public function getDueDate(): ?\DateTimeInterface
+    {
+        return $this->dueDate;
+    }
+
+    public function setDueDate(?\DateTimeInterface $dueDate): self
+    {
+        $this->dueDate = $dueDate;
+
+        return $this;
+    }
+
+    public function isOverdue(): bool
+    {
+        if (!$this->dueDate) {
+            return false;
+        }
+        return $this->dueDate < new \DateTime('today');
+    }
+
+    public function isDueSoon(): bool
+    {
+        if (!$this->dueDate) {
+            return false;
+        }
+        $today = new \DateTime('today');
+        $threeDays = new \DateTime('+3 days');
+        return $this->dueDate >= $today && $this->dueDate <= $threeDays;
     }
 }
 

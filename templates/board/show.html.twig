@@ -66,7 +66,15 @@
                                 <p class="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">{{ task.description }}</p>
                             {% endif %}
                             <div class="flex justify-between items-center mb-2 pt-2 border-t border-gray-200 dark:border-gray-600">
-                                <span class="text-xs text-gray-500 dark:text-gray-400">Position: {{ task.position }}</span>
+                                <div class="flex flex-col gap-1">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">Position: {{ task.position }}</span>
+                                    {% if task.dueDate %}
+                                        <span class="text-xs font-medium {% if task.isOverdue %}text-red-600 dark:text-red-400{% elseif task.isDueSoon %}text-orange-600 dark:text-orange-400{% else %}text-gray-600 dark:text-gray-400{% endif %}">
+                                            📅 Due: {{ task.dueDate|date('Y-m-d') }}
+                                            {% if task.isOverdue %}(Overdue){% elseif task.isDueSoon %}(Due soon){% endif %}
+                                        </span>
+                                    {% endif %}
+                                </div>
                                 <a href="{{ path('app_task_edit', {'id': task.id}) }}" class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium transition-colors">
                                     Edit
                                 </a>
