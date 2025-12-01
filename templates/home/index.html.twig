@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Symfoban - Kanban Board System{% endblock %}
+
+{% block body %}
+<div class="min-h-[calc(100vh-200px)] flex items-center justify-center">
+    <div class="max-w-4xl mx-auto text-center px-4">
+        <h1 class="text-5xl font-bold text-gray-900 dark:text-white mb-6">
+            Welcome to <span class="text-indigo-600 dark:text-indigo-400">Symfoban</span>
+        </h1>
+        <p class="text-xl text-gray-600 dark:text-gray-300 mb-8">
+            A modern Kanban board system to organize your tasks and boost productivity
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            {% if app.user %}
+                <a href="{{ path('app_board_index') }}" class="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-3 px-8 rounded-lg transition-colors shadow-lg">
+                    Go to Boards
+                </a>
+            {% else %}
+                <a href="{{ path('app_login') }}" class="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-3 px-8 rounded-lg transition-colors shadow-lg">
+                    Get Started
+                </a>
+            {% endif %}
+            <a href="{{ path('app_board_index') }}" class="bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-indigo-600 dark:text-indigo-400 font-semibold py-3 px-8 rounded-lg transition-colors border-2 border-indigo-600 dark:border-indigo-400">
+                    View Demo
+                </a>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8 mt-16">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <div class="text-4xl mb-4">📋</div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Organize Tasks</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Create boards, columns, and tasks to organize your workflow efficiently
+                </p>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <div class="text-4xl mb-4">🔄</div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Drag & Drop</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Intuitive drag and drop interface to reorder tasks and move them between columns
+                </p>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <div class="text-4xl mb-4">👥</div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Team Collaboration</h3>
+                <p class="text-gray-600 dark:text-gray-300">
+                    Track who created each task and collaborate with your team effectively
+                </p>
+            </div>
+        </div>
+
+        {% if not app.user %}
+            <div class="mt-16 p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
+                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Ready to get started?</h2>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                    Contact your administrator to create an account and start organizing your tasks.
+                </p>
+                <a href="{{ path('app_login') }}" class="inline-block bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+                    Login
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

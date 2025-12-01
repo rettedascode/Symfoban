@@ -4,42 +4,44 @@
 
 {% block body %}
 <div class="max-w-2xl mx-auto">
-    <h2 class="text-3xl font-bold text-gray-900 mb-6">Edit Task</h2>
+    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">Edit Task</h2>
 
-    {{ form_start(form, {'attr': {'class': 'bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4'}}) }}
-        <div class="mb-4">
-            {{ form_label(form.title, null, {'label_attr': {'class': 'block text-gray-700 text-sm font-bold mb-2'}}) }}
-            {{ form_widget(form.title) }}
-            {{ form_errors(form.title) }}
-        </div>
+    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl px-8 pt-8 pb-8 mb-4 border border-gray-200 dark:border-gray-700">
+        {{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+            <div>
+                {{ form_label(form.title, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'}}) }}
+                {{ form_widget(form.title, {'attr': {'class': 'block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-colors'}}) }}
+                {{ form_errors(form.title, {'attr': {'class': 'mt-1 text-sm text-red-600 dark:text-red-400'}}) }}
+            </div>
 
-        <div class="mb-4">
-            {{ form_label(form.description, null, {'label_attr': {'class': 'block text-gray-700 text-sm font-bold mb-2'}}) }}
-            {{ form_widget(form.description) }}
-            {{ form_errors(form.description) }}
-        </div>
+            <div>
+                {{ form_label(form.description, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'}}) }}
+                {{ form_widget(form.description, {'attr': {'class': 'block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-colors resize-none'}}) }}
+                {{ form_errors(form.description, {'attr': {'class': 'mt-1 text-sm text-red-600 dark:text-red-400'}}) }}
+            </div>
 
-        <div class="mb-4">
-            {{ form_label(form.position, null, {'label_attr': {'class': 'block text-gray-700 text-sm font-bold mb-2'}}) }}
-            {{ form_widget(form.position) }}
-            {{ form_errors(form.position) }}
-        </div>
+            <div>
+                {{ form_label(form.position, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'}}) }}
+                {{ form_widget(form.position, {'attr': {'class': 'block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-colors'}}) }}
+                {{ form_errors(form.position, {'attr': {'class': 'mt-1 text-sm text-red-600 dark:text-red-400'}}) }}
+            </div>
 
-        <div class="mb-4">
-            {{ form_label(form.column, null, {'label_attr': {'class': 'block text-gray-700 text-sm font-bold mb-2'}}) }}
-            {{ form_widget(form.column) }}
-            {{ form_errors(form.column) }}
-        </div>
+            <div>
+                {{ form_label(form.column, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'}}) }}
+                {{ form_widget(form.column, {'attr': {'class': 'block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-colors'}}) }}
+                {{ form_errors(form.column, {'attr': {'class': 'mt-1 text-sm text-red-600 dark:text-red-400'}}) }}
+            </div>
 
-        <div class="flex items-center justify-between">
-            <a href="{{ path('app_board_show', {'id': task.column.board.id}) }}" class="text-gray-600 hover:text-gray-800 font-medium">
-                ← Back to Board
-            </a>
-            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors">
-                Update Task
-            </button>
-        </div>
-    {{ form_end(form) }}
+            <div class="flex items-center justify-between pt-4">
+                <a href="{{ path('app_board_show', {'id': task.column.board.id}) }}" class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium transition-colors">
+                    ← Back to Board
+                </a>
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors shadow-md hover:shadow-lg">
+                    Update Task
+                </button>
+            </div>
+        {{ form_end(form) }}
+    </div>
 </div>
 {% endblock %}
 

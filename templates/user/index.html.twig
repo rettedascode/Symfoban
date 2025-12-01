@@ -1,0 +1,103 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Users - Symfoban{% endblock %}
+
+{% block body %}
+<div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">User Management</h2>
+    <a href="{{ path('app_user_new') }}" class="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md hover:shadow-lg">
+        + Create User
+    </a>
+</div>
+
+{% for message in app.flashes('success') %}
+    <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded-lg mb-6">
+        <div class="flex items-center gap-2">
+            <span class="text-lg">✓</span>
+            <span>{{ message }}</span>
+        </div>
+    </div>
+{% endfor %}
+
+{% if users|length > 0 %}
+    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-900">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Name</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Email</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Roles</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Tasks</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Created</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for user in users %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                                        <span class="text-indigo-600 dark:text-indigo-400 font-semibold text-sm">
+                                            {{ user.name|slice(0, 1)|upper }}
+                                        </span>
+                                    </div>
+                                    <div class="text-sm font-semibold text-gray-900 dark:text-white">{{ user.name }}</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-600 dark:text-gray-300">{{ user.email }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex flex-wrap gap-1">
+                                    {% for role in user.roles %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300">
+                                            {{ role }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm text-gray-600 dark:text-gray-300 font-medium">{{ user.tasks|length }}</span>
+                                    <span class="text-xs text-gray-400 dark:text-gray-500">task{{ user.tasks|length != 1 ? 's' : '' }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-600 dark:text-gray-300">{{ user.createdAt|date('Y-m-d') }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex items-center gap-3">
+                                    <a href="{{ path('app_user_show', {'id': user.id}) }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-semibold transition-colors">
+                                        View
+                                    </a>
+                                    {% if user.id != app.user.id %}
+                                        <form method="post" action="{{ path('app_user_delete', {'id': user.id}) }}" class="inline" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                                            <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-semibold transition-colors">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <span class="text-gray-400 dark:text-gray-600 text-xs italic">(You)</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% else %}
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-12 text-center border border-gray-200 dark:border-gray-700">
+        <div class="text-6xl mb-4">👥</div>
+        <p class="text-gray-600 dark:text-gray-300 text-lg mb-6">No users found. Create your first user to get started!</p>
+        <a href="{{ path('app_user_new') }}" class="inline-block bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-3 px-8 rounded-lg transition-colors shadow-md hover:shadow-lg">
+            Create First User
+        </a>
+    </div>
+{% endif %}
+{% endblock %}
+

@@ -3,75 +3,82 @@
 {% block title %}{{ board.name }} - Symfoban{% endblock %}
 
 {% block body %}
-<div class="mb-6">
-    <div class="flex justify-between items-center mb-4">
-        <h2 class="text-3xl font-bold text-gray-900">{{ board.name }}</h2>
-        <div class="flex gap-2">
-            <a href="{{ path('app_board_edit', {'id': board.id}) }}" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+<div class="mb-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">{{ board.name }}</h2>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">Created: {{ board.createdAt|date('Y-m-d H:i') }}</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="{{ path('app_board_edit', {'id': board.id}) }}" class="bg-gray-600 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md hover:shadow-lg">
                 Edit Board
             </a>
-            <a href="{{ path('app_column_new') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+            <a href="{{ path('app_column_new') }}" class="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md hover:shadow-lg">
                 + Add Column
             </a>
         </div>
     </div>
-    <p class="text-gray-600">Created: {{ board.createdAt|date('Y-m-d H:i') }}</p>
 </div>
 
 {% if board.columns|length > 0 %}
     <div
         id="kanban-board"
-        class="flex gap-4 overflow-x-auto pb-4"
+        class="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800"
+        style="scrollbar-width: thin;"
         data-reorder-url="{{ path('app_task_reorder') }}"
         data-csrf-token="{{ csrf_token('tasks_reorder') }}"
     >
         {% for column in board.columns %}
             <div
-                class="bg-gray-100 rounded-lg p-4 w-72 flex-shrink-0"
+                class="bg-gray-100 dark:bg-gray-800 rounded-xl p-5 w-72 flex-shrink-0 border border-gray-200 dark:border-gray-700 shadow-md"
                 data-column-id="{{ column.id }}"
             >
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900">{{ column.name }}</h3>
-                    <div class="flex gap-2">
-                        <a href="{{ path('app_column_edit', {'id': column.id}) }}" class="text-gray-600 hover:text-gray-800 text-sm">
-                            Edit
-                        </a>
-                    </div>
+                <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-300 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ column.name }}</h3>
+                    <a href="{{ path('app_column_edit', {'id': column.id}) }}" class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 text-sm font-medium transition-colors">
+                        Edit
+                    </a>
                 </div>
 
-                <div class="min-h-[40px] space-y-2 kanban-column-tasks">
+                <div class="min-h-[100px] space-y-3 kanban-column-tasks mb-4">
                     {% for task in column.tasks %}
                         <div
-                            class="bg-white rounded-md shadow p-3 mb-3 cursor-move"
+                            class="bg-white dark:bg-gray-700 rounded-lg shadow-md hover:shadow-lg p-4 cursor-move transition-all border border-gray-200 dark:border-gray-600"
                             draggable="true"
                             data-task-id="{{ task.id }}"
                             data-column-id="{{ column.id }}"
                             data-position="{{ task.position }}"
                         >
-                            <h4 class="font-medium text-gray-900 mb-1">{{ task.title }}</h4>
+                            <h4 class="font-semibold text-gray-900 dark:text-white mb-2">{{ task.title }}</h4>
                             {% if task.description %}
-                                <p class="text-sm text-gray-600 mb-2">{{ task.description }}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">{{ task.description }}</p>
                             {% endif %}
-                            <div class="flex justify-between items-center">
-                                <span class="text-xs text-gray-500">Position: {{ task.position }}</span>
-                                <a href="{{ path('app_task_edit', {'id': task.id}) }}" class="text-xs text-indigo-600 hover:text-indigo-800">
+                            <div class="flex justify-between items-center mb-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Position: {{ task.position }}</span>
+                                <a href="{{ path('app_task_edit', {'id': task.id}) }}" class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium transition-colors">
                                     Edit
                                 </a>
                             </div>
+                            {% if task.createdBy %}
+                                <div class="text-xs text-gray-500 dark:text-gray-400 pt-2 mt-2 border-t border-gray-200 dark:border-gray-600">
+                                    Created by: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ task.createdBy.name }}</span>
+                                </div>
+                            {% endif %}
                         </div>
                     {% endfor %}
                 </div>
 
-                <a href="{{ path('app_task_new') }}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                <a href="{{ path('app_task_new') }}" class="block text-center text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-semibold py-2 px-4 rounded-lg border-2 border-dashed border-indigo-300 dark:border-indigo-600 hover:border-indigo-500 dark:hover:border-indigo-500 transition-colors">
                     + Add Task
                 </a>
             </div>
         {% endfor %}
     </div>
 {% else %}
-    <div class="bg-white rounded-lg shadow-md p-12 text-center">
-        <p class="text-gray-500 text-lg mb-4">No columns yet. Add your first column to get started!</p>
-        <a href="{{ path('app_column_new') }}" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-md transition-colors">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-12 text-center border border-gray-200 dark:border-gray-700">
+        <div class="text-6xl mb-4">📊</div>
+        <p class="text-gray-600 dark:text-gray-300 text-lg mb-6">No columns yet. Add your first column to get started!</p>
+        <a href="{{ path('app_column_new') }}" class="inline-block bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-3 px-8 rounded-lg transition-colors shadow-md hover:shadow-lg">
             Add Column
         </a>
     </div>
@@ -144,6 +151,7 @@
                         headers: {
                             'Content-Type': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
                         },
                         body: JSON.stringify({
                             taskId: parseInt(taskId, 10),
@@ -153,22 +161,35 @@
                         }),
                     });
 
+                    // Check if response is actually JSON
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const text = await response.text();
+                        console.error('Server returned non-JSON response:', text.substring(0, 200));
+                        alert('Error: Server returned an error. Check console for details.');
+                        location.reload(); // Reload to restore correct state
+                        return;
+                    }
+
                     const result = await response.json();
                     if (!response.ok || !result.success) {
                         console.error('Failed to reorder task', result);
-                        // Optional: show a toast or reload to keep UI consistent
+                        alert('Error: ' + (result.error || 'Failed to save task position'));
+                        location.reload(); // Reload to restore correct state
                     } else {
                         // Update data-position attributes in the column
                         tasksInColumn.forEach((el, index) => {
                             el.dataset.position = String(index);
-                            const positionLabel = el.querySelector('span.text-xs.text-gray-500');
-                            if (positionLabel) {
+                            const positionLabel = el.querySelector('span.text-xs');
+                            if (positionLabel && positionLabel.textContent.includes('Position:')) {
                                 positionLabel.textContent = 'Position: ' + index;
                             }
                         });
                     }
                 } catch (error) {
                     console.error('Error sending reorder request', error);
+                    alert('Error: Could not save task position. Please refresh the page.');
+                    location.reload(); // Reload to restore correct state
                 }
             });
         });

@@ -4,37 +4,143 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Symfoban - Kanban Board{% endblock %}</title>
+    {# Configure Tailwind to use class-based dark mode #}
+    <script>
+        window.tailwind = window.tailwind || {};
+        window.tailwind.config = {
+            darkMode: 'class',
+        };
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar styling */
+        #kanban-board::-webkit-scrollbar {
+            height: 8px;
+        }
+        #kanban-board::-webkit-scrollbar-track {
+            background: rgb(243 244 246);
+            border-radius: 4px;
+        }
+        .dark #kanban-board::-webkit-scrollbar-track {
+            background: rgb(31 41 55);
+        }
+        #kanban-board::-webkit-scrollbar-thumb {
+            background: rgb(209 213 219);
+            border-radius: 4px;
+        }
+        .dark #kanban-board::-webkit-scrollbar-thumb {
+            background: rgb(75 85 99);
+        }
+        #kanban-board::-webkit-scrollbar-thumb:hover {
+            background: rgb(156 163 175);
+        }
+        .dark #kanban-board::-webkit-scrollbar-thumb:hover {
+            background: rgb(107 114 128);
+        }
+    </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <header class="bg-white shadow-sm">
+<body class="bg-gray-50 min-h-screen flex flex-col dark:bg-gray-900 dark:text-gray-100">
+    <header class="bg-white shadow-sm dark:bg-gray-800 dark:shadow-none border-b border-gray-200 dark:border-gray-700">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-4">
-                <h1 class="text-2xl font-bold text-gray-900">
-                    <a href="{{ path('app_board_index') }}" class="hover:text-indigo-600 transition-colors">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    <a href="{{ path('app_home') }}" class="hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors">
                         Symfoban
                     </a>
                 </h1>
-                <nav>
-                    <a href="{{ path('app_board_index') }}" class="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                <nav class="flex items-center gap-4">
+                    <button
+                        id="theme-toggle"
+                        type="button"
+                        class="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 dark:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        aria-label="Toggle dark mode"
+                    >
+                        <span
+                            id="theme-toggle-thumb"
+                            class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                            style="transform: translateX(0.25rem);"
+                        ></span>
+                    </button>
+                    <a href="{{ path('app_board_index') }}" class="text-gray-700 hover:text-indigo-600 dark:text-gray-200 dark:hover:text-indigo-300 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                         Boards
                     </a>
+                    {% if app.user %}
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <a href="{{ path('app_user_index') }}" class="text-gray-700 hover:text-indigo-600 dark:text-gray-200 dark:hover:text-indigo-300 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                                Users
+                            </a>
+                        {% endif %}
+                        <span class="text-gray-600 dark:text-gray-300 text-sm">Hello, {{ app.user.name }}</span>
+                        <a href="{{ path('app_logout') }}" class="text-gray-700 hover:text-indigo-600 dark:text-gray-200 dark:hover:text-indigo-300 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                            Logout
+                        </a>
+                    {% else %}
+                        <a href="{{ path('app_login') }}" class="text-gray-700 hover:text-indigo-600 dark:text-gray-200 dark:hover:text-indigo-300 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                            Login
+                        </a>
+                    {% endif %}
                 </nav>
             </div>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         {% block body %}{% endblock %}
     </main>
 
-    <footer class="bg-white border-t mt-12">
+    <footer class="bg-white border-t mt-12 dark:bg-gray-800 dark:border-gray-700">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <p class="text-center text-gray-500 text-sm">
+            <p class="text-center text-gray-500 dark:text-gray-400 text-sm">
                 &copy; {{ "now"|date("Y") }} Symfoban - Kanban Board System
             </p>
         </div>
     </footer>
+
+    <script>
+        (function () {
+            // Initialize theme on page load
+            const root = document.documentElement;
+            const storedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+                root.classList.add('dark');
+            } else {
+                root.classList.remove('dark');
+            }
+
+            // Initialize toggle (script is at bottom of body, so DOM is ready)
+            const toggle = document.getElementById('theme-toggle');
+            const thumb = document.getElementById('theme-toggle-thumb');
+            
+            if (!toggle || !thumb) {
+                console.error('Theme toggle elements not found');
+                return;
+            }
+
+            // Update thumb position based on current theme
+            function updateToggle() {
+                const isDark = root.classList.contains('dark');
+                if (isDark) {
+                    thumb.style.transform = 'translateX(1.5rem)';
+                } else {
+                    thumb.style.transform = 'translateX(0.25rem)';
+                }
+            }
+
+            // Initial update
+            updateToggle();
+
+            // Toggle on click
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                root.classList.toggle('dark');
+                const isDark = root.classList.contains('dark');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                updateToggle();
+            });
+        })();
+    </script>
 </body>
 </html>
 
