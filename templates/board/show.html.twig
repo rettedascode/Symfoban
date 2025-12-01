@@ -43,13 +43,25 @@
                 <div class="min-h-[100px] space-y-3 kanban-column-tasks mb-4">
                     {% for task in column.tasks %}
                         <div
-                            class="bg-white dark:bg-gray-700 rounded-lg shadow-md hover:shadow-lg p-4 cursor-move transition-all border border-gray-200 dark:border-gray-600"
+                            class="bg-white dark:bg-gray-700 rounded-lg shadow-md hover:shadow-lg p-4 cursor-move transition-all border-l-4 {% if task.priority == 'critical' %}border-red-500{% elseif task.priority == 'high' %}border-orange-500{% elseif task.priority == 'medium' %}border-yellow-500{% elseif task.priority == 'low' %}border-blue-500{% else %}border-gray-200 dark:border-gray-600{% endif %}"
                             draggable="true"
                             data-task-id="{{ task.id }}"
                             data-column-id="{{ column.id }}"
                             data-position="{{ task.position }}"
                         >
-                            <h4 class="font-semibold text-gray-900 dark:text-white mb-2">{{ task.title }}</h4>
+                            <div class="flex items-start justify-between mb-2">
+                                <h4 class="font-semibold text-gray-900 dark:text-white">{{ task.title }}</h4>
+                                {% if task.priority %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold
+                                        {% if task.priority == 'critical' %}bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300
+                                        {% elseif task.priority == 'high' %}bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300
+                                        {% elseif task.priority == 'medium' %}bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300
+                                        {% elseif task.priority == 'low' %}bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300
+                                        {% endif %}">
+                                        {{ task.priority|upper }}
+                                    </span>
+                                {% endif %}
+                            </div>
                             {% if task.description %}
                                 <p class="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">{{ task.description }}</p>
                             {% endif %}

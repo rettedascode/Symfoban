@@ -27,6 +27,10 @@ class Task
     #[ORM\Column(type: 'integer')]
     private int $position = 0;
 
+    // Priority level: low, medium, high, critical
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $priority = null;
+
     #[ORM\ManyToOne(targetEntity: Column::class, inversedBy: 'tasks')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Column $column = null;
@@ -144,6 +148,18 @@ class Task
     public function setCreatedBy(?User $createdBy): self
     {
         $this->createdBy = $createdBy;
+
+        return $this;
+    }
+
+    public function getPriority(): ?string
+    {
+        return $this->priority;
+    }
+
+    public function setPriority(?string $priority): self
+    {
+        $this->priority = $priority;
 
         return $this;
     }
