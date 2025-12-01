@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ board.name }} - Symfoban{% endblock %}
+
+{% block body %}
+<div class="mb-6">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-3xl font-bold text-gray-900">{{ board.name }}</h2>
+        <div class="flex gap-2">
+            <a href="{{ path('app_board_edit', {'id': board.id}) }}" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                Edit Board
+            </a>
+            <a href="{{ path('app_column_new') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+                + Add Column
+            </a>
+        </div>
+    </div>
+    <p class="text-gray-600">Created: {{ board.createdAt|date('Y-m-d H:i') }}</p>
+</div>
+
+{% if board.columns|length > 0 %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for column in board.columns %}
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">{{ column.name }}</h3>
+                    <div class="flex gap-2">
+                        <a href="{{ path('app_column_edit', {'id': column.id}) }}" class="text-gray-600 hover:text-gray-800 text-sm">
+                            Edit
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="space-y-2 mb-4">
+                    {% for task in column.tasks %}
+                        <div class="bg-gray-50 rounded p-3 border border-gray-200">
+                            <h4 class="font-medium text-gray-900 mb-1">{{ task.title }}</h4>
+                            {% if task.description %}
+                                <p class="text-sm text-gray-600 mb-2">{{ task.description }}</p>
+                            {% endif %}
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-gray-500">Position: {{ task.position }}</span>
+                                <a href="{{ path('app_task_edit', {'id': task.id}) }}" class="text-xs text-indigo-600 hover:text-indigo-800">
+                                    Edit
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <a href="{{ path('app_task_new') }}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                    + Add Task
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="bg-white rounded-lg shadow-md p-12 text-center">
+        <p class="text-gray-500 text-lg mb-4">No columns yet. Add your first column to get started!</p>
+        <a href="{{ path('app_column_new') }}" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-md transition-colors">
+            Add Column
+        </a>
+    </div>
+{% endif %}
+{% endblock %}
+

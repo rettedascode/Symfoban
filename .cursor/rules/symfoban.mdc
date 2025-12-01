@@ -1,0 +1,30 @@
+---
+alwaysApply: true
+---
+You are working inside an existing Symfony 6 project (symfony/skeleton) that is already initialized as a Git repository on GitHub named "Symfoban".
+Technology stack:
+- PHP 8+, Symfony 6, Doctrine ORM, Twig
+- Frontend styling: TailwindCSS via CDN only
+  <script src="https://cdn.tailwindcss.com"></script>
+- No frontend build tooling (no Webpack, Encore, Vite)
+- JavaScript: vanilla ES6 modules or inline scripts
+
+Git requirements:
+- Assume active development happens on a feature branch called "feature/kanban-board"
+- Generate clean, small commit suggestions after each major change
+- Do not modify .git or .gitignore unnecessarily
+
+Project goal:
+Create a lightweight Kanban Board system with:
+- Entities: Board, Column, Task (Board has Columns, Column has Tasks)
+- Drag & Drop for Tasks using HTML5 Drag & Drop + AJAX
+- Sorting of tasks with persisted positions
+- JSON endpoint for updating task order
+
+General code rules:
+- Provide complete file paths for all created/updated files
+- Use PHP 8 attributes for Doctrine mappings
+- Comment important code sections in clear English
+- Use Tailwind utility classes in all HTML
+- Use Twig for views
+- Write all UI texts, variable names, and comments in English
