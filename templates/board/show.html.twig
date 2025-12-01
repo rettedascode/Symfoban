@@ -19,9 +19,17 @@
 </div>
 
 {% if board.columns|length > 0 %}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div
+        id="kanban-board"
+        class="flex gap-4 overflow-x-auto pb-4"
+        data-reorder-url="{{ path('app_task_reorder') }}"
+        data-csrf-token="{{ csrf_token('tasks_reorder') }}"
+    >
         {% for column in board.columns %}
-            <div class="bg-white rounded-lg shadow-md p-4">
+            <div
+                class="bg-gray-100 rounded-lg p-4 w-72 flex-shrink-0"
+                data-column-id="{{ column.id }}"
+            >
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-semibold text-gray-900">{{ column.name }}</h3>
                     <div class="flex gap-2">
@@ -30,10 +38,16 @@
                         </a>
                     </div>
                 </div>
-                
-                <div class="space-y-2 mb-4">
+
+                <div class="min-h-[40px] space-y-2 kanban-column-tasks">
                     {% for task in column.tasks %}
-                        <div class="bg-gray-50 rounded p-3 border border-gray-200">
+                        <div
+                            class="bg-white rounded-md shadow p-3 mb-3 cursor-move"
+                            draggable="true"
+                            data-task-id="{{ task.id }}"
+                            data-column-id="{{ column.id }}"
+                            data-position="{{ task.position }}"
+                        >
                             <h4 class="font-medium text-gray-900 mb-1">{{ task.title }}</h4>
                             {% if task.description %}
                                 <p class="text-sm text-gray-600 mb-2">{{ task.description }}</p>
@@ -62,5 +76,116 @@
         </a>
     </div>
 {% endif %}
-{% endblock %}
 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const boardEl = document.getElementById('kanban-board');
+        if (!boardEl) {
+            return;
+        }
+
+        const reorderUrl = boardEl.dataset.reorderUrl;
+        const csrfToken = boardEl.dataset.csrfToken;
+
+        let draggedTask = null;
+
+        boardEl.querySelectorAll('[data-task-id]').forEach(taskEl => {
+            taskEl.addEventListener('dragstart', (event) => {
+                draggedTask = taskEl;
+                event.dataTransfer.effectAllowed = 'move';
+                event.dataTransfer.setData('text/plain', taskEl.dataset.taskId);
+                taskEl.classList.add('opacity-50');
+            });
+
+            taskEl.addEventListener('dragend', () => {
+                if (draggedTask) {
+                    draggedTask.classList.remove('opacity-50');
+                    draggedTask = null;
+                }
+            });
+        });
+
+        boardEl.querySelectorAll('.kanban-column-tasks').forEach(columnTasksEl => {
+            columnTasksEl.addEventListener('dragover', (event) => {
+                event.preventDefault();
+                event.dataTransfer.dropEffect = 'move';
+
+                const afterElement = getDragAfterElement(columnTasksEl, event.clientY);
+                if (!draggedTask) {
+                    return;
+                }
+
+                if (afterElement == null) {
+                    columnTasksEl.appendChild(draggedTask);
+                } else {
+                    columnTasksEl.insertBefore(draggedTask, afterElement);
+                }
+            });
+
+            columnTasksEl.addEventListener('drop', async (event) => {
+                event.preventDefault();
+                if (!draggedTask) {
+                    return;
+                }
+
+                const columnEl = columnTasksEl.closest('[data-column-id]');
+                const columnId = columnEl?.dataset.columnId;
+                if (!columnId) {
+                    return;
+                }
+
+                const taskId = draggedTask.dataset.taskId;
+                const tasksInColumn = Array.from(columnTasksEl.querySelectorAll('[data-task-id]'));
+                const newPosition = tasksInColumn.findIndex(el => el.dataset.taskId === taskId);
+
+                try {
+                    const response = await fetch(reorderUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: JSON.stringify({
+                            taskId: parseInt(taskId, 10),
+                            columnId: parseInt(columnId, 10),
+                            position: newPosition,
+                            _token: csrfToken,
+                        }),
+                    });
+
+                    const result = await response.json();
+                    if (!response.ok || !result.success) {
+                        console.error('Failed to reorder task', result);
+                        // Optional: show a toast or reload to keep UI consistent
+                    } else {
+                        // Update data-position attributes in the column
+                        tasksInColumn.forEach((el, index) => {
+                            el.dataset.position = String(index);
+                            const positionLabel = el.querySelector('span.text-xs.text-gray-500');
+                            if (positionLabel) {
+                                positionLabel.textContent = 'Position: ' + index;
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error sending reorder request', error);
+                }
+            });
+        });
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('[data-task-id]:not(.opacity-50)')];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
+        }
+    });
+</script>
+{% endblock %}
