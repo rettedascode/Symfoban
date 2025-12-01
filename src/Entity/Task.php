@@ -60,6 +60,11 @@ class Task
     #[ORM\JoinTable(name: 'task_tag')]
     private Collection $tags;
 
+    public function __construct()
+    {
+        $this->tags = new ArrayCollection();
+    }
+
     // Lifecycle callbacks to automatically manage timestamps
 
     #[ORM\PrePersist]
