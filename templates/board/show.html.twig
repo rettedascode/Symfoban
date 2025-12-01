@@ -79,11 +79,16 @@
                                     Edit
                                 </a>
                             </div>
-                            {% if task.createdBy %}
-                                <div class="text-xs text-gray-500 dark:text-gray-400 pt-2 mt-2 border-t border-gray-200 dark:border-gray-600">
-                                    Created by: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ task.createdBy.name }}</span>
-                                </div>
-                            {% endif %}
+                            <div class="text-xs text-gray-500 dark:text-gray-400 pt-2 mt-2 border-t border-gray-200 dark:border-gray-600 space-y-1">
+                                {% if task.createdBy %}
+                                    <div>Created by: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ task.createdBy.name }}</span></div>
+                                {% endif %}
+                                {% if task.assignedTo %}
+                                    <div>Assigned to: <span class="font-semibold text-indigo-600 dark:text-indigo-400">{{ task.assignedTo.name }}</span></div>
+                                {% else %}
+                                    <div class="text-gray-400 dark:text-gray-500 italic">Unassigned</div>
+                                {% endif %}
+                            </div>
                         </div>
                     {% endfor %}
                 </div>

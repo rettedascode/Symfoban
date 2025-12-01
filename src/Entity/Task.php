@@ -43,6 +43,11 @@ class Task
     #[ORM\JoinColumn(nullable: false)]
     private ?User $createdBy = null;
 
+    // User assigned to this task
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $assignedTo = null;
+
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
@@ -176,6 +181,18 @@ class Task
     public function setDueDate(?\DateTimeInterface $dueDate): self
     {
         $this->dueDate = $dueDate;
+
+        return $this;
+    }
+
+    public function getAssignedTo(): ?User
+    {
+        return $this->assignedTo;
+    }
+
+    public function setAssignedTo(?User $assignedTo): self
+    {
+        $this->assignedTo = $assignedTo;
 
         return $this;
     }

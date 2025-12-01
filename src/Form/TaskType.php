@@ -65,6 +65,16 @@ class TaskType extends AbstractType
                     'class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
                 ],
             ])
+            ->add('assignedTo', EntityType::class, [
+                'class' => \App\Entity\User::class,
+                'choice_label' => 'name',
+                'label' => 'Assign To',
+                'required' => false,
+                'placeholder' => 'Unassigned',
+                'attr' => [
+                    'class' => 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500',
+                ],
+            ])
             ->add('column', EntityType::class, [
                 'class' => Column::class,
                 'choice_label' => 'name',
