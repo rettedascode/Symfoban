@@ -60,20 +60,32 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_user_show', methods: ['GET'])]
-    public function show(User $user): Response
+    #[Route('/{id}', name: 'app_user_show', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function show(int $id, UserRepository $userRepository): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $user = $userRepository->find($id);
+        
+        if (!$user) {
+            throw $this->createNotFoundException('User not found.');
+        }
 
         return $this->render('user/show.html.twig', [
             'user' => $user,
         ]);
     }
 
-    #[Route('/{id}/delete', name: 'app_user_delete', methods: ['POST'])]
-    public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/delete', name: 'app_user_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function delete(Request $request, int $id, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $user = $userRepository->find($id);
+        
+        if (!$user) {
+            throw $this->createNotFoundException('User not found.');
+        }
 
         if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->getPayload()->get('_token'))) {
             $entityManager->remove($user);
