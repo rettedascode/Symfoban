@@ -43,27 +43,62 @@
                 <div class="min-h-[100px] space-y-3 kanban-column-tasks mb-4">
                     {% for task in column.tasks %}
                         <div
-                            class="bg-white dark:bg-gray-700 rounded-lg shadow-md hover:shadow-lg p-4 cursor-move transition-all border border-gray-200 dark:border-gray-600"
+                            class="bg-white dark:bg-gray-700 rounded-lg shadow-md hover:shadow-lg p-4 cursor-move transition-all border-l-4 {% if task.priority == 'critical' %}border-red-500{% elseif task.priority == 'high' %}border-orange-500{% elseif task.priority == 'medium' %}border-yellow-500{% elseif task.priority == 'low' %}border-blue-500{% else %}border-gray-200 dark:border-gray-600{% endif %}"
                             draggable="true"
                             data-task-id="{{ task.id }}"
                             data-column-id="{{ column.id }}"
                             data-position="{{ task.position }}"
                         >
-                            <h4 class="font-semibold text-gray-900 dark:text-white mb-2">{{ task.title }}</h4>
+                            <div class="flex items-start justify-between mb-2">
+                                <h4 class="font-semibold text-gray-900 dark:text-white">{{ task.title }}</h4>
+                                {% if task.priority %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold
+                                        {% if task.priority == 'critical' %}bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300
+                                        {% elseif task.priority == 'high' %}bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300
+                                        {% elseif task.priority == 'medium' %}bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300
+                                        {% elseif task.priority == 'low' %}bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300
+                                        {% endif %}">
+                                        {{ task.priority|upper }}
+                                    </span>
+                                {% endif %}
+                            </div>
                             {% if task.description %}
                                 <p class="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">{{ task.description }}</p>
                             {% endif %}
                             <div class="flex justify-between items-center mb-2 pt-2 border-t border-gray-200 dark:border-gray-600">
-                                <span class="text-xs text-gray-500 dark:text-gray-400">Position: {{ task.position }}</span>
+                                <div class="flex flex-col gap-1">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">Position: {{ task.position }}</span>
+                                    {% if task.dueDate %}
+                                        <span class="text-xs font-medium {% if task.isOverdue %}text-red-600 dark:text-red-400{% elseif task.isDueSoon %}text-orange-600 dark:text-orange-400{% else %}text-gray-600 dark:text-gray-400{% endif %}">
+                                            📅 Due: {{ task.dueDate|date('Y-m-d') }}
+                                            {% if task.isOverdue %}(Overdue){% elseif task.isDueSoon %}(Due soon){% endif %}
+                                        </span>
+                                    {% endif %}
+                                </div>
                                 <a href="{{ path('app_task_edit', {'id': task.id}) }}" class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium transition-colors">
                                     Edit
                                 </a>
                             </div>
-                            {% if task.createdBy %}
-                                <div class="text-xs text-gray-500 dark:text-gray-400 pt-2 mt-2 border-t border-gray-200 dark:border-gray-600">
-                                    Created by: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ task.createdBy.name }}</span>
+                            {% if task.tags|length > 0 %}
+                                <div class="flex flex-wrap gap-1 mb-2">
+                                    {% for tag in task.tags %}
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+                                              style="background-color: {{ tag.color ?? '#6B7280' }}20; color: {{ tag.color ?? '#6B7280' }}; border: 1px solid {{ tag.color ?? '#6B7280' }}40;">
+                                            {{ tag.name }}
+                                        </span>
+                                    {% endfor %}
                                 </div>
                             {% endif %}
+                            <div class="text-xs text-gray-500 dark:text-gray-400 pt-2 mt-2 border-t border-gray-200 dark:border-gray-600 space-y-1">
+                                {% if task.createdBy %}
+                                    <div>Created by: <span class="font-semibold text-gray-700 dark:text-gray-300">{{ task.createdBy.name }}</span></div>
+                                {% endif %}
+                                {% if task.assignedTo %}
+                                    <div>Assigned to: <span class="font-semibold text-indigo-600 dark:text-indigo-400">{{ task.assignedTo.name }}</span></div>
+                                {% else %}
+                                    <div class="text-gray-400 dark:text-gray-500 italic">Unassigned</div>
+                                {% endif %}
+                            </div>
                         </div>
                     {% endfor %}
                 </div>

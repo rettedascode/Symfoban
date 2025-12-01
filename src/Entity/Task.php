@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\TaskRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
@@ -27,6 +29,14 @@ class Task
     #[ORM\Column(type: 'integer')]
     private int $position = 0;
 
+    // Priority level: low, medium, high, critical
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $priority = null;
+
+    // Due date for the task
+    #[ORM\Column(type: 'date', nullable: true)]
+    private ?\DateTimeInterface $dueDate = null;
+
     #[ORM\ManyToOne(targetEntity: Column::class, inversedBy: 'tasks')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Column $column = null;
@@ -35,11 +45,20 @@ class Task
     #[ORM\JoinColumn(nullable: false)]
     private ?User $createdBy = null;
 
+    // User assigned to this task
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $assignedTo = null;
+
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $updatedAt;
+
+    #[ORM\ManyToMany(targetEntity: \App\Entity\Tag::class, inversedBy: 'tasks')]
+    #[ORM\JoinTable(name: 'task_tag')]
+    private Collection $tags;
 
     // Lifecycle callbacks to automatically manage timestamps
 
@@ -144,6 +163,84 @@ class Task
     public function setCreatedBy(?User $createdBy): self
     {
         $this->createdBy = $createdBy;
+
+        return $this;
+    }
+
+    public function getPriority(): ?string
+    {
+        return $this->priority;
+    }
+
+    public function setPriority(?string $priority): self
+    {
+        $this->priority = $priority;
+
+        return $this;
+    }
+
+    public function getDueDate(): ?\DateTimeInterface
+    {
+        return $this->dueDate;
+    }
+
+    public function setDueDate(?\DateTimeInterface $dueDate): self
+    {
+        $this->dueDate = $dueDate;
+
+        return $this;
+    }
+
+    public function getAssignedTo(): ?User
+    {
+        return $this->assignedTo;
+    }
+
+    public function setAssignedTo(?User $assignedTo): self
+    {
+        $this->assignedTo = $assignedTo;
+
+        return $this;
+    }
+
+    public function isOverdue(): bool
+    {
+        if (!$this->dueDate) {
+            return false;
+        }
+        return $this->dueDate < new \DateTime('today');
+    }
+
+    public function isDueSoon(): bool
+    {
+        if (!$this->dueDate) {
+            return false;
+        }
+        $today = new \DateTime('today');
+        $threeDays = new \DateTime('+3 days');
+        return $this->dueDate >= $today && $this->dueDate <= $threeDays;
+    }
+
+    /**
+     * @return Collection<int, \App\Entity\Tag>
+     */
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(\App\Entity\Tag $tag): self
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(\App\Entity\Tag $tag): self
+    {
+        $this->tags->removeElement($tag);
 
         return $this;
     }

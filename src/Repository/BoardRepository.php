@@ -21,6 +21,20 @@ class BoardRepository extends ServiceEntityRepository
         parent::__construct($registry, Board::class);
     }
 
+    /**
+     * Search boards by name
+     * @return Board[]
+     */
+    public function search(string $query): array
+    {
+        return $this->createQueryBuilder('b')
+            ->where('b.name LIKE :query')
+            ->setParameter('query', '%' . $query . '%')
+            ->orderBy('b.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     // Add custom Board queries here if needed.
 }
 
