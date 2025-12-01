@@ -3,9 +3,9 @@
 {% block title %}Boards - Symfoban{% endblock %}
 
 {% block body %}
-<div class="mb-6 flex justify-between items-center">
-    <h2 class="text-3xl font-bold text-gray-900">Kanban Boards</h2>
-    <a href="{{ path('app_board_new') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition-colors">
+<div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Kanban Boards</h2>
+    <a href="{{ path('app_board_new') }}" class="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md hover:shadow-lg">
         + New Board
     </a>
 </div>
@@ -13,21 +13,27 @@
 {% if boards|length > 0 %}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for board in boards %}
-            <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6">
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">
-                    <a href="{{ path('app_board_show', {'id': board.id}) }}" class="hover:text-indigo-600 transition-colors">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 p-6 border border-gray-200 dark:border-gray-700">
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                    <a href="{{ path('app_board_show', {'id': board.id}) }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                         {{ board.name }}
                     </a>
                 </h3>
-                <div class="text-sm text-gray-500 mb-4">
-                    <p>{{ board.columns|length }} column{{ board.columns|length != 1 ? 's' : '' }}</p>
-                    <p>Created: {{ board.createdAt|date('Y-m-d H:i') }}</p>
+                <div class="text-sm text-gray-600 dark:text-gray-400 mb-4 space-y-1">
+                    <p class="flex items-center gap-2">
+                        <span class="text-indigo-600 dark:text-indigo-400">📋</span>
+                        <span>{{ board.columns|length }} column{{ board.columns|length != 1 ? 's' : '' }}</span>
+                    </p>
+                    <p class="flex items-center gap-2">
+                        <span class="text-indigo-600 dark:text-indigo-400">📅</span>
+                        <span>Created: {{ board.createdAt|date('Y-m-d H:i') }}</span>
+                    </p>
                 </div>
-                <div class="flex gap-2 mt-4">
-                    <a href="{{ path('app_board_show', {'id': board.id}) }}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                <div class="flex gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <a href="{{ path('app_board_show', {'id': board.id}) }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-semibold transition-colors">
                         View →
                     </a>
-                    <a href="{{ path('app_board_edit', {'id': board.id}) }}" class="text-gray-600 hover:text-gray-800 text-sm font-medium">
+                    <a href="{{ path('app_board_edit', {'id': board.id}) }}" class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 text-sm font-medium transition-colors">
                         Edit
                     </a>
                 </div>
@@ -35,9 +41,10 @@
         {% endfor %}
     </div>
 {% else %}
-    <div class="bg-white rounded-lg shadow-md p-12 text-center">
-        <p class="text-gray-500 text-lg mb-4">No boards yet. Create your first board to get started!</p>
-        <a href="{{ path('app_board_new') }}" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-md transition-colors">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-12 text-center border border-gray-200 dark:border-gray-700">
+        <div class="text-6xl mb-4">📋</div>
+        <p class="text-gray-600 dark:text-gray-300 text-lg mb-6">No boards yet. Create your first board to get started!</p>
+        <a href="{{ path('app_board_new') }}" class="inline-block bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-semibold py-3 px-8 rounded-lg transition-colors shadow-md hover:shadow-lg">
             Create Board
         </a>
     </div>
