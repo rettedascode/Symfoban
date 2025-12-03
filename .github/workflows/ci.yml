@@ -47,7 +47,7 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-interaction
 
       - name: Run Unit tests
-        run: php bin/phpunit --testsuite=Unit --verbose --testdox
+        run: php bin/phpunit --testsuite=Unit --testdox
 
       - name: Run Integration tests (if database available)
         run: php bin/phpunit --testsuite=Integration || true
