@@ -12,10 +12,6 @@
 *~
 
 # Symfony
-/var/*
-!/var/cache
-!/var/log
-!/var/sessions
 /var/cache/*
 !/var/cache/.gitkeep
 /var/log/*
