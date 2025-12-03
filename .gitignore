@@ -12,3 +12,25 @@
 ###> Cursor IDE ###
 /.cursor/
 ###< Cursor IDE ###
+
+###> Environment files ###
+.env
+.env.*
+!/.env.example
+###< Environment files ###
+
+###> Database files ###
+*.db
+*.sqlite
+*.sqlite3
+###< Database files ###
+
+###> IDE files ###
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+###< IDE files ###
