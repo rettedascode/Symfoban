@@ -44,3 +44,7 @@ Thumbs.db
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
+
+###> GitHub Actions ###
+/.github/workflows/*.local
+###< GitHub Actions ###
