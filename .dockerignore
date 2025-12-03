@@ -1,0 +1,53 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.idea
+.vscode
+.cursor
+*.swp
+*.swo
+*~
+
+# Symfony
+/var/*
+!/var/cache
+!/var/log
+!/var/sessions
+/var/cache/*
+!/var/cache/.gitkeep
+/var/log/*
+!/var/log/.gitkeep
+/var/sessions/*
+!/var/sessions/.gitkeep
+
+# Dependencies
+/vendor
+/node_modules
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Documentation
+README.md
+*.md
+
+# Docker
+Dockerfile
+docker-compose.yml
+compose.yaml
+compose.override.yaml
+.dockerignore
+
+# Tests
+/tests
+phpunit.xml
+
+# Misc
+.DS_Store
+Thumbs.db
+

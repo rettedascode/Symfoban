@@ -7,11 +7,20 @@ A modern, lightweight Kanban board application built with Symfony 7.4, featuring
 - 📋 **Kanban Board Management** - Create and manage multiple boards with custom columns
 - 🔄 **Drag & Drop** - Intuitive HTML5 drag-and-drop for reordering tasks
 - 👥 **User Authentication** - Secure login system with role-based access control
-- 🎨 **Dark Mode** - Beautiful dark/light theme toggle
-- 📊 **Task Tracking** - Track task creators and positions
+- 🎨 **Dark Mode** - Beautiful dark/light theme toggle with persistent preference
+- 📊 **Task Tracking** - Track task creators, assignments, priorities, and due dates
+- 🏷️ **Tags & Labels** - Color-coded tags for task organization
+- 📅 **Due Dates** - Visual indicators for overdue and upcoming tasks
+- ⚡ **Task Priorities** - Four priority levels (Low, Medium, High, Critical)
+- 🔍 **Advanced Search** - Search across tasks, boards, and users
+- 📝 **Activity Log** - Track all board changes and user actions
+- 🎯 **Board Templates** - Quick board creation from predefined templates
+- 🐳 **Docker Support** - Complete Docker setup for easy deployment
 - 🔐 **Admin Controls** - Admin-only user management
 
 ## Requirements
+
+### Local Development (without Docker)
 
 - **PHP**: >= 8.2
 - **Extensions**: 
@@ -21,7 +30,14 @@ A modern, lightweight Kanban board application built with Symfony 7.4, featuring
 - **Composer**: Latest version
 - **Database**: SQLite (default) or MySQL/PostgreSQL
 
+### Docker Deployment
+
+- **Docker**: >= 20.10
+- **Docker Compose**: >= 2.0
+
 ## Installation
+
+> **Note**: For a quicker setup, you can use [Docker Deployment](#docker-deployment) instead of manual installation.
 
 ### 1. Clone the Repository
 
@@ -63,7 +79,7 @@ DATABASE_URL="sqlite:///%kernel.project_dir%/var/data.db"
 php bin/console doctrine:migrations:migrate
 ```
 
-This will create all necessary database tables (User, Board, Column, Task).
+This will create all necessary database tables (User, Board, Column, Task, Tag, BoardTemplate, ActivityLog).
 
 ### 5. Create Admin User
 
@@ -95,6 +111,214 @@ Open your browser and navigate to:
 http://localhost:8000
 ```
 
+## Docker Deployment
+
+Symfoban includes a complete Docker setup for easy deployment in development and production environments.
+
+### Prerequisites
+
+- **Docker**: >= 20.10
+- **Docker Compose**: >= 2.0
+
+### Quick Start with Docker
+
+1. **Clone the Repository**
+
+```bash
+git clone https://github.com/yourusername/Symfoban.git
+cd Symfoban
+```
+
+2. **Configure Environment Variables**
+
+Create a `.env` file in the project root (or copy from `.env.example` if available):
+
+```env
+# Application Environment
+APP_ENV=dev
+
+# PostgreSQL Configuration
+POSTGRES_DB=symfoban
+POSTGRES_USER=symfoban
+POSTGRES_PASSWORD=ChangeMeInProduction!
+POSTGRES_VERSION=16
+POSTGRES_PORT=5432
+
+# Docker Configuration
+DOCKER_TARGET=development
+NGINX_PORT=8080
+
+# Database URL
+DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?serverVersion=${POSTGRES_VERSION}&charset=utf8
+```
+
+3. **Build and Start Containers**
+
+```bash
+# Build and start all services
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Check container status
+docker compose ps
+```
+
+4. **Install Dependencies and Setup Database**
+
+```bash
+# Install Composer dependencies
+docker compose exec php composer install
+
+# Run database migrations
+docker compose exec php php bin/console doctrine:migrations:migrate --no-interaction
+
+# Create admin user
+docker compose exec php php bin/console app:create-admin
+
+# (Optional) Load demo data (includes demo board, users, tasks, tags, and templates)
+docker compose exec php php bin/console doctrine:fixtures:load --no-interaction
+```
+
+5. **Access the Application**
+
+Open your browser and navigate to:
+
+```
+http://localhost:8080
+```
+
+### Docker Services
+
+The Docker Compose setup includes:
+
+- **`php`** - PHP 8.2-FPM container running the Symfony application
+- **`nginx`** - Nginx web server as reverse proxy
+- **`postgres`** - PostgreSQL 16 database server
+
+### Common Docker Commands
+
+```bash
+# Start services
+docker compose up -d
+
+# Stop services
+docker compose down
+
+# Stop and remove volumes (WARNING: deletes database data)
+docker compose down -v
+
+# Rebuild containers after code changes
+docker compose up -d --build
+
+# Execute Symfony console commands
+docker compose exec php php bin/console <command>
+
+# Access PHP container shell
+docker compose exec php sh
+
+# View logs
+docker compose logs -f php
+docker compose logs -f nginx
+docker compose logs -f postgres
+
+# Clear Symfony cache
+docker compose exec php php bin/console cache:clear
+```
+
+### Production Deployment
+
+For production deployment:
+
+1. **Update Environment Variables**
+
+```env
+APP_ENV=prod
+DOCKER_TARGET=production
+POSTGRES_PASSWORD=<strong-production-password>
+DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?serverVersion=${POSTGRES_VERSION}&charset=utf8
+```
+
+2. **Build Production Image**
+
+```bash
+docker compose build --target production
+```
+
+3. **Start Production Services**
+
+```bash
+docker compose up -d
+```
+
+4. **Run Production Setup**
+
+```bash
+# Install dependencies (no dev)
+docker compose exec php composer install --no-dev --optimize-autoloader
+
+# Clear and warm up cache
+docker compose exec php php bin/console cache:clear --env=prod
+docker compose exec php php bin/console cache:warmup --env=prod
+
+# Run migrations
+docker compose exec php php bin/console doctrine:migrations:migrate --no-interaction --env=prod
+```
+
+### Dockerfile Details
+
+The Dockerfile uses a multi-stage build:
+
+- **Base Stage**: Installs PHP extensions and Composer
+- **Development Stage**: Includes dev dependencies and development PHP configuration
+- **Production Stage**: Optimized for production with OPcache enabled
+
+### Volume Mounts
+
+- Application code is mounted as a volume for development (hot-reload)
+- PostgreSQL data is persisted in `postgres_data` volume
+- Symfony `var/` directory is mounted for cache and logs
+
+### Network Configuration
+
+All services run on a custom Docker network (`symfoban_network`) for isolation and security.
+
+### Troubleshooting
+
+**Port Already in Use:**
+```bash
+# Change ports in .env file
+NGINX_PORT=8081
+POSTGRES_PORT=5433
+```
+
+**Permission Issues:**
+```bash
+# Fix file permissions
+docker compose exec php chown -R www-data:www-data /var/www/symfony/var
+```
+
+**Database Connection Issues:**
+```bash
+# Check database health
+docker compose ps postgres
+
+# View database logs
+docker compose logs postgres
+
+# Test PostgreSQL connection
+docker compose exec php php -r "try { \$pdo = new PDO('pgsql:host=postgres;dbname=symfoban', 'symfoban', 'ChangeMeInProduction!'); echo 'PostgreSQL: Connected\n'; } catch (Exception \$e) { echo 'PostgreSQL: ' . \$e->getMessage() . '\n'; }"
+```
+
+**Clear Everything and Start Fresh:**
+```bash
+docker compose down -v
+docker compose up -d --build
+docker compose exec php composer install
+docker compose exec php php bin/console doctrine:migrations:migrate --no-interaction
+```
+
 ## Tech Stack
 
 - **Backend Framework**: Symfony 7.4
@@ -102,29 +326,39 @@ http://localhost:8000
 - **ORM**: Doctrine ORM
 - **Styling**: TailwindCSS (via CDN)
 - **Authentication**: Symfony Security Bundle
-- **Database**: SQLite (default, can be changed to MySQL/PostgreSQL)
+- **Database**: SQLite (default, can be changed to PostgreSQL)
 
 ## Project Structure
 
 ```
 Symfoban/
 ├── config/              # Symfony configuration files
+├── docker/             # Docker configuration files
+│   └── nginx/         # Nginx configuration
 ├── migrations/          # Database migrations
 ├── public/             # Web root
 ├── src/
 │   ├── Command/        # Console commands
 │   ├── Controller/     # Controllers
-│   ├── Entity/         # Doctrine entities (Board, Column, Task, User)
+│   ├── DataFixtures/   # Doctrine fixtures
+│   ├── Entity/         # Doctrine entities (Board, Column, Task, User, etc.)
 │   ├── Form/           # Form types
-│   └── Repository/     # Doctrine repositories
+│   ├── Repository/     # Doctrine repositories
+│   └── Service/        # Business logic services
 ├── templates/          # Twig templates
+│   ├── activity_log/  # Activity log templates
 │   ├── board/         # Board templates
 │   ├── column/        # Column templates
 │   ├── home/          # Landing page
+│   ├── registration/  # Registration template
+│   ├── search/        # Search templates
 │   ├── security/      # Login template
 │   ├── task/          # Task templates
 │   └── user/          # User management templates
-└── var/               # Cache and logs
+├── var/               # Cache and logs
+├── .dockerignore      # Docker ignore file
+├── Dockerfile         # Docker image definition
+└── compose.yaml       # Docker Compose configuration
 ```
 
 ## Branching Workflow
