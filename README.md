@@ -2,7 +2,25 @@
 
 A modern, lightweight Kanban board application built with Symfony 7.4, featuring drag-and-drop task management, user authentication, and a beautiful dark mode interface.
 
-## Features
+---
+
+## 📑 Table of Contents
+
+- [Features](#-features)
+- [Quick Start](#-quick-start)
+- [Installation](#-installation)
+  - [Docker Deployment (Recommended)](#docker-deployment-recommended)
+  - [Local Development](#local-development)
+- [Usage](#-usage)
+- [Development](#-development)
+- [Tech Stack](#-tech-stack)
+- [Project Structure](#-project-structure)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+---
+
+## ✨ Features
 
 - 📋 **Kanban Board Management** - Create and manage multiple boards with custom columns
 - 🔄 **Drag & Drop** - Intuitive HTML5 drag-and-drop for reordering tasks
@@ -18,120 +36,73 @@ A modern, lightweight Kanban board application built with Symfony 7.4, featuring
 - 🐳 **Docker Support** - Complete Docker setup for easy deployment
 - 🔐 **Admin Controls** - Admin-only user management
 
-## Requirements
+---
 
-### Local Development (without Docker)
+## 🚀 Quick Start
 
-- **PHP**: >= 8.2
-- **Extensions**: 
-  - `ext-ctype`
-  - `ext-iconv`
-  - `ext-pdo` (for database)
-- **Composer**: Latest version
-- **Database**: SQLite (default) or MySQL/PostgreSQL
-
-### Docker Deployment
-
-- **Docker**: >= 20.10
-- **Docker Compose**: >= 2.0
-
-## Installation
-
-> **Note**: For a quicker setup, you can use [Docker Deployment](#docker-deployment) instead of manual installation.
-
-### 1. Clone the Repository
+### Docker Deployment (Recommended)
 
 ```bash
+# 1. Clone the repository
 git clone https://github.com/yourusername/Symfoban.git
 cd Symfoban
+
+# 2. Configure environment (create .env file)
+# See Docker Deployment section below for details
+
+# 3. Start services
+docker compose up -d
+
+# 4. Setup application
+docker compose exec php composer install
+docker compose exec php php bin/console doctrine:migrations:migrate --no-interaction
+docker compose exec php php bin/console app:create-admin
+
+# 5. Access the application
+# Open http://localhost:8080 in your browser
 ```
 
-### 2. Install Dependencies
+### Local Development
 
 ```bash
+# 1. Clone and install
+git clone https://github.com/yourusername/Symfoban.git
+cd Symfoban
 composer install
-```
 
-### 3. Configure Environment
-
-Copy the `.env` file and configure your database:
-
-```bash
-cp .env .env.local
-```
-
-Edit `.env.local` and set your database URL:
-
-```env
-# For SQLite (default)
-DATABASE_URL="sqlite:///%kernel.project_dir%/var/data.db"
-
-# For MySQL
-# DATABASE_URL="mysql://user:password@127.0.0.1:3306/symfoban?serverVersion=8.0"
-
-# For PostgreSQL
-# DATABASE_URL="postgresql://user:password@127.0.0.1:5432/symfoban?serverVersion=13&charset=utf8"
-```
-
-### 4. Run Database Migrations
-
-```bash
+# 2. Configure database in .env.local
+# 3. Run migrations and create admin user
 php bin/console doctrine:migrations:migrate
-```
-
-This will create all necessary database tables (User, Board, Column, Task, Tag, BoardTemplate, ActivityLog).
-
-### 5. Create Admin User
-
-Since user registration is admin-only, create your first admin user:
-
-```bash
 php bin/console app:create-admin
-```
 
-Follow the prompts to enter email, name, and password.
-
-### 6. Start the Development Server
-
-```bash
+# 4. Start server
 symfony server:start
+# or: php -S localhost:8000 -t public
 ```
 
-Or using PHP's built-in server:
+---
 
-```bash
-php -S localhost:8000 -t public
-```
+## 📦 Installation
 
-### 7. Access the Application
+### Requirements
 
-Open your browser and navigate to:
+**Docker Deployment:**
+- Docker >= 20.10
+- Docker Compose >= 2.0
 
-```
-http://localhost:8000
-```
+**Local Development:**
+- PHP >= 8.2
+- Composer
+- Extensions: `ext-ctype`, `ext-iconv`, `ext-pdo`
+- Database: SQLite (default), PostgreSQL, or MySQL
 
-## Docker Deployment
+---
 
-Symfoban includes a complete Docker setup for easy deployment in development and production environments.
+### Docker Deployment (Recommended)
 
-### Prerequisites
+#### 1. Configure Environment
 
-- **Docker**: >= 20.10
-- **Docker Compose**: >= 2.0
-
-### Quick Start with Docker
-
-1. **Clone the Repository**
-
-```bash
-git clone https://github.com/yourusername/Symfoban.git
-cd Symfoban
-```
-
-2. **Configure Environment Variables**
-
-Create a `.env` file in the project root (or copy from `.env.example` if available):
+Create a `.env` file in the project root:
 
 ```env
 # Application Environment
@@ -152,7 +123,7 @@ NGINX_PORT=8080
 DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?serverVersion=${POSTGRES_VERSION}&charset=utf8
 ```
 
-3. **Build and Start Containers**
+#### 2. Start Services
 
 ```bash
 # Build and start all services
@@ -161,300 +132,209 @@ docker compose up -d
 # View logs
 docker compose logs -f
 
-# Check container status
+# Check status
 docker compose ps
 ```
 
-4. **Install Dependencies and Setup Database**
+#### 3. Setup Application
 
 ```bash
-# Install Composer dependencies
+# Install dependencies
 docker compose exec php composer install
 
-# Run database migrations
+# Run migrations
 docker compose exec php php bin/console doctrine:migrations:migrate --no-interaction
 
 # Create admin user
 docker compose exec php php bin/console app:create-admin
 
-# (Optional) Load demo data (includes demo board, users, tasks, tags, and templates)
+# (Optional) Load demo data
 docker compose exec php php bin/console doctrine:fixtures:load --no-interaction
 ```
 
-5. **Access the Application**
+#### 4. Access Application
 
-Open your browser and navigate to:
+Open your browser: **http://localhost:8080**
 
-```
-http://localhost:8080
-```
+#### Docker Services
 
-### Docker Services
+- **`php`** - PHP 8.2-FPM container
+- **`nginx`** - Nginx web server (port 8080)
+- **`postgres`** - PostgreSQL 16 database (port 5432)
 
-The Docker Compose setup includes:
-
-- **`php`** - PHP 8.2-FPM container running the Symfony application
-- **`nginx`** - Nginx web server as reverse proxy
-- **`postgres`** - PostgreSQL 16 database server
-
-### Common Docker Commands
+#### Common Commands
 
 ```bash
-# Start services
-docker compose up -d
+# Start/Stop
+docker compose up -d              # Start services
+docker compose down               # Stop services
+docker compose down -v            # Stop and remove volumes
 
-# Stop services
-docker compose down
+# Development
+docker compose exec php sh         # Access PHP container
+docker compose exec php php bin/console <command>  # Run Symfony commands
+docker compose logs -f php         # View logs
 
-# Stop and remove volumes (WARNING: deletes database data)
-docker compose down -v
-
-# Rebuild containers after code changes
-docker compose up -d --build
-
-# Execute Symfony console commands
-docker compose exec php php bin/console <command>
-
-# Access PHP container shell
-docker compose exec php sh
-
-# View logs
-docker compose logs -f php
-docker compose logs -f nginx
-docker compose logs -f postgres
-
-# Clear Symfony cache
-docker compose exec php php bin/console cache:clear
+# Production
+docker compose build --target production
+docker compose exec php composer install --no-dev --optimize-autoloader
+docker compose exec php php bin/console cache:warmup --env=prod
 ```
 
-### Production Deployment
+#### Troubleshooting
 
-For production deployment:
+**Port conflicts:** Change `NGINX_PORT` or `POSTGRES_PORT` in `.env`
 
-1. **Update Environment Variables**
+**Database connection:** Check `docker compose ps postgres` and logs
+
+**Permissions:** `docker compose exec php chown -R www-data:www-data /var/www/symfony/var`
+
+---
+
+### Local Development
+
+#### 1. Clone Repository
+
+```bash
+git clone https://github.com/yourusername/Symfoban.git
+cd Symfoban
+```
+
+#### 2. Install Dependencies
+
+```bash
+composer install
+```
+
+#### 3. Configure Environment
+
+Create `.env.local`:
 
 ```env
-APP_ENV=prod
-DOCKER_TARGET=production
-POSTGRES_PASSWORD=<strong-production-password>
-DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?serverVersion=${POSTGRES_VERSION}&charset=utf8
+# For SQLite (default)
+DATABASE_URL="sqlite:///%kernel.project_dir%/var/data.db"
+
+# For PostgreSQL
+# DATABASE_URL="postgresql://user:password@127.0.0.1:5432/symfoban?serverVersion=16&charset=utf8"
 ```
 
-2. **Build Production Image**
+#### 4. Setup Database
 
 ```bash
-docker compose build --target production
-```
-
-3. **Start Production Services**
-
-```bash
-docker compose up -d
-```
-
-4. **Run Production Setup**
-
-```bash
-# Install dependencies (no dev)
-docker compose exec php composer install --no-dev --optimize-autoloader
-
-# Clear and warm up cache
-docker compose exec php php bin/console cache:clear --env=prod
-docker compose exec php php bin/console cache:warmup --env=prod
-
 # Run migrations
-docker compose exec php php bin/console doctrine:migrations:migrate --no-interaction --env=prod
+php bin/console doctrine:migrations:migrate
+
+# Create admin user
+php bin/console app:create-admin
 ```
 
-### Dockerfile Details
+#### 5. Start Server
 
-The Dockerfile uses a multi-stage build:
-
-- **Base Stage**: Installs PHP extensions and Composer
-- **Development Stage**: Includes dev dependencies and development PHP configuration
-- **Production Stage**: Optimized for production with OPcache enabled
-
-### Volume Mounts
-
-- Application code is mounted as a volume for development (hot-reload)
-- PostgreSQL data is persisted in `postgres_data` volume
-- Symfony `var/` directory is mounted for cache and logs
-
-### Network Configuration
-
-All services run on a custom Docker network (`symfoban_network`) for isolation and security.
-
-### Troubleshooting
-
-**Port Already in Use:**
 ```bash
-# Change ports in .env file
-NGINX_PORT=8081
-POSTGRES_PORT=5433
+# Symfony CLI (recommended)
+symfony server:start
+
+# Or PHP built-in server
+php -S localhost:8000 -t public
 ```
 
-**Permission Issues:**
+Access: **http://localhost:8000**
+
+---
+
+## 💡 Usage
+
+### Creating Boards
+
+1. Login with your admin account
+2. Navigate to **"Boards"** in the navigation
+3. Click **"+ New Board"**
+4. Enter a board name and save
+
+### Managing Tasks
+
+1. Open a board
+2. Click **"+ Add Column"** to create columns
+3. Click **"+ Add Task"** within a column to add tasks
+4. **Drag and drop** tasks to reorder or move between columns
+5. Click on tasks to edit details, set priorities, due dates, and tags
+
+### User Management (Admin Only)
+
+1. Navigate to **"Users"** in the navigation
+2. Click **"+ Create User"** to add new users
+3. View user details and manage accounts
+
+---
+
+## 🛠️ Development
+
+### Running Tests
+
 ```bash
-# Fix file permissions
-docker compose exec php chown -R www-data:www-data /var/www/symfony/var
+# Run all tests
+php bin/phpunit
+
+# Run specific test suite
+php bin/phpunit --testsuite=Unit
+php bin/phpunit --testsuite=Integration
+
+# Run with coverage
+php bin/phpunit --coverage-html coverage/
 ```
 
-**Database Connection Issues:**
+See [tests/README.md](tests/README.md) for detailed test documentation.
+
+### Common Commands
+
 ```bash
-# Check database health
-docker compose ps postgres
+# Cache
+php bin/console cache:clear
 
-# View database logs
-docker compose logs postgres
+# Database
+php bin/console make:migration              # Create migration
+php bin/console doctrine:migrations:migrate # Run migrations
+php bin/console doctrine:fixtures:load      # Load fixtures
 
-# Test PostgreSQL connection
-docker compose exec php php -r "try { \$pdo = new PDO('pgsql:host=postgres;dbname=symfoban', 'symfoban', 'ChangeMeInProduction!'); echo 'PostgreSQL: Connected\n'; } catch (Exception \$e) { echo 'PostgreSQL: ' . \$e->getMessage() . '\n'; }"
+# Docker
+docker compose exec php php bin/console <command>
 ```
 
-**Clear Everything and Start Fresh:**
-```bash
-docker compose down -v
-docker compose up -d --build
-docker compose exec php composer install
-docker compose exec php php bin/console doctrine:migrations:migrate --no-interaction
-```
-
-## Tech Stack
-
-- **Backend Framework**: Symfony 7.4
-- **Template Engine**: Twig
-- **ORM**: Doctrine ORM
-- **Styling**: TailwindCSS (via CDN)
-- **Authentication**: Symfony Security Bundle
-- **Database**: SQLite (default, can be changed to PostgreSQL)
-
-## Project Structure
+### Project Structure
 
 ```
 Symfoban/
-├── config/              # Symfony configuration files
-├── docker/             # Docker configuration files
-│   └── nginx/         # Nginx configuration
+├── config/              # Symfony configuration
+├── docker/              # Docker configuration
+│   └── nginx/          # Nginx config
 ├── migrations/          # Database migrations
 ├── public/             # Web root
 ├── src/
 │   ├── Command/        # Console commands
 │   ├── Controller/     # Controllers
-│   ├── DataFixtures/   # Doctrine fixtures
-│   ├── Entity/         # Doctrine entities (Board, Column, Task, User, etc.)
+│   ├── Entity/         # Doctrine entities
 │   ├── Form/           # Form types
-│   ├── Repository/     # Doctrine repositories
-│   └── Service/        # Business logic services
+│   ├── Repository/     # Repositories
+│   └── Service/        # Services
 ├── templates/          # Twig templates
-│   ├── activity_log/  # Activity log templates
-│   ├── board/         # Board templates
-│   ├── column/        # Column templates
-│   ├── home/          # Landing page
-│   ├── registration/  # Registration template
-│   ├── search/        # Search templates
-│   ├── security/      # Login template
-│   ├── task/          # Task templates
-│   └── user/          # User management templates
-├── var/               # Cache and logs
-├── .dockerignore      # Docker ignore file
-├── Dockerfile         # Docker image definition
-└── compose.yaml       # Docker Compose configuration
+└── tests/              # PHPUnit tests
 ```
 
-## Branching Workflow
+---
 
-This project uses a feature branch workflow:
+## 🏗️ Tech Stack
 
-- **`main`** - Production-ready code
-- **`feature/kanban-board`** - Active development branch for Kanban features
+- **Framework**: Symfony 7.4
+- **Template Engine**: Twig
+- **ORM**: Doctrine ORM
+- **Styling**: TailwindCSS (via CDN)
+- **Authentication**: Symfony Security Bundle
+- **Database**: PostgreSQL (Docker) / SQLite (local)
+- **Testing**: PHPUnit 11.5
 
-### Working with Branches
+---
 
-```bash
-# Create and switch to a new feature branch
-git checkout -b feature/your-feature-name
-
-# Push feature branch to GitHub
-git push -u origin feature/your-feature-name
-```
-
-## Usage
-
-### Creating Your First Board
-
-1. Login with your admin account
-2. Navigate to "Boards" in the navigation
-3. Click "+ New Board"
-4. Enter a board name and save
-
-### Adding Columns and Tasks
-
-1. Open a board
-2. Click "+ Add Column" to create columns
-3. Click "+ Add Task" within a column to add tasks
-4. Drag and drop tasks to reorder or move between columns
-
-### Managing Users (Admin Only)
-
-1. Navigate to "Users" in the navigation
-2. Click "+ Create User" to add new users
-3. View user details and manage accounts
-
-## Development
-
-### Running Tests
-
-```bash
-# Install test dependencies
-composer install
-
-# Run all tests
-php bin/phpunit
-
-# Run only unit tests
-php bin/phpunit --testsuite=Unit
-
-# Run only integration tests
-php bin/phpunit --testsuite=Integration
-
-# Run specific test file
-php bin/phpunit tests/Unit/Entity/BoardTest.php
-
-# Run with coverage report
-php bin/phpunit --coverage-html coverage/
-```
-
-See [tests/README.md](tests/README.md) for more information about the test suite.
-
-### Clearing Cache
-
-```bash
-php bin/console cache:clear
-```
-
-### Database Operations
-
-```bash
-# Create a new migration
-php bin/console make:migration
-
-# Run migrations
-php bin/console doctrine:migrations:migrate
-
-# Reset database (WARNING: deletes all data)
-php bin/console doctrine:schema:drop --force
-php bin/console doctrine:schema:create
-php bin/console doctrine:migrations:migrate
-```
-
-## Security
-
-- User passwords are hashed using Symfony's password hasher
-- CSRF protection enabled for all forms
-- Role-based access control (ROLE_USER, ROLE_ADMIN)
-- User registration restricted to admins only
-
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -462,15 +342,32 @@ php bin/console doctrine:migrations:migrate
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## License
+### Branching Workflow
+
+- **`main`** - Production-ready code
+- **`feature/*`** - Feature development branches
+
+---
+
+## 🔒 Security
+
+- User passwords hashed with Symfony's password hasher
+- CSRF protection on all forms
+- Role-based access control (ROLE_USER, ROLE_ADMIN)
+- Admin-only user registration
+
+---
+
+## 📄 License
 
 This project is proprietary software.
 
-## Support
+---
 
-For issues and questions, please open an issue on GitHub.
+## 📞 Support
+
+For issues and questions, please open an issue on [GitHub](https://github.com/yourusername/Symfoban/issues).
 
 ---
 
 **Built with ❤️ using Symfony 7.4**
-
