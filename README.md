@@ -269,6 +269,20 @@ Access: **http://localhost:8000**
 
 ## 🛠️ Development
 
+### CI/CD Pipeline
+
+This project uses GitHub Actions for continuous integration:
+
+- ✅ **Tests** - Runs PHPUnit tests on PHP 8.2 and 8.3
+- ✅ **Code Quality** - Validates PHP syntax and composer.json
+- ✅ **Docker Build** - Tests Docker image builds (development & production)
+
+The pipeline runs automatically on:
+- Push to `main` or `feature/kanban-board` branches
+- Pull requests to `main` or `feature/kanban-board` branches
+
+View workflow status: [![CI](https://github.com/yourusername/Symfoban/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/Symfoban/actions/workflows/ci.yml)
+
 ### Running Tests
 
 ```bash

@@ -34,8 +34,11 @@ COPY composer.json composer.lock ./
 # Copy application files
 COPY . .
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/symfony/var
+# Create var directory structure and set permissions
+RUN mkdir -p /var/www/symfony/var/cache \
+             /var/www/symfony/var/log \
+             /var/www/symfony/var/sessions && \
+    chown -R www-data:www-data /var/www/symfony/var
 
 # Production stage
 FROM base AS production

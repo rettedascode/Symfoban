@@ -38,9 +38,15 @@ Thumbs.db
 ###> PHPUnit ###
 .phpunit.cache/
 .phpunit.result.cache
+coverage.xml
+coverage/
 ###< PHPUnit ###
 
 ###> phpunit/phpunit ###
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
+
+###> GitHub Actions ###
+/.github/workflows/*.local
+###< GitHub Actions ###
