@@ -1,4 +1,6 @@
 {
+    "name": "symfoban/kanban-board",
+    "description": "A modern Kanban board application built with Symfony 7.4",
     "type": "project",
     "license": "proprietary",
     "minimum-stability": "stable",
@@ -7,12 +9,12 @@
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "doctrine/doctrine-bundle": "^2.18",
+        "doctrine/doctrine-bundle": "^2.18.1",
         "doctrine/doctrine-migrations-bundle": "^3.7",
-        "doctrine/orm": "^3.5",
+        "doctrine/orm": "^3.5.8",
         "symfony/console": "7.4.*",
         "symfony/dotenv": "7.4.*",
-        "symfony/flex": "^2",
+        "symfony/flex": "^2.10",
         "symfony/form": "7.4.*",
         "symfony/framework-bundle": "7.4.*",
         "symfony/runtime": "7.4.*",
@@ -20,8 +22,8 @@
         "symfony/security-csrf": "7.4.*",
         "symfony/twig-bundle": "7.4.*",
         "symfony/yaml": "7.4.*",
-        "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0"
+        "twig/extra-bundle": "^2.12|^3.22.1",
+        "twig/twig": "^2.12|^3.22.1"
     },
     "config": {
         "allow-plugins": {
@@ -75,7 +77,7 @@
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^4.3",
-        "phpunit/phpunit": "*",
+        "phpunit/phpunit": ">=11.5.45",
         "symfony/browser-kit": "7.4.*",
         "symfony/css-selector": "7.4.*",
         "symfony/maker-bundle": "^1.65"
