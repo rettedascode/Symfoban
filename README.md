@@ -405,9 +405,26 @@ git push -u origin feature/your-feature-name
 ### Running Tests
 
 ```bash
-# Run PHPUnit tests (if configured)
+# Install test dependencies
+composer install
+
+# Run all tests
 php bin/phpunit
+
+# Run only unit tests
+php bin/phpunit --testsuite=Unit
+
+# Run only integration tests
+php bin/phpunit --testsuite=Integration
+
+# Run specific test file
+php bin/phpunit tests/Unit/Entity/BoardTest.php
+
+# Run with coverage report
+php bin/phpunit --coverage-html coverage/
 ```
+
+See [tests/README.md](tests/README.md) for more information about the test suite.
 
 ### Clearing Cache
 
